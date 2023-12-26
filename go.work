@@ -4,4 +4,6 @@ use (
 	./commit
 	./giiit
 	./giiit_init
+	./log
+	./tag
 )
