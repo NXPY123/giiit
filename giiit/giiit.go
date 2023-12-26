@@ -6,6 +6,7 @@ import (
 
 	"github.com/NXPY123/giiit/commit"
 	"github.com/NXPY123/giiit/giiit_init"
+	"github.com/NXPY123/giiit/log"
 )
 
 func main() {
@@ -29,6 +30,13 @@ func main() {
 		}
 	case "commit":
 		success := commit.Commit(os.Args[1], os.Args[2])
+		if success {
+			os.Exit(0)
+		} else {
+			os.Exit(1)
+		}
+	case "log":
+		success := log.LogView()
 		if success {
 			os.Exit(0)
 		} else {
