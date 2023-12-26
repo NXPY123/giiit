@@ -9,7 +9,13 @@ import (
 
 func TestGiiit(t *testing.T) {
 	// Test with one argument
-	project := "/Users/neeraj_py/Desktop/VCS/giit/test"
+	// Set the project directory as test in the parent directory
+	project := "../test"
+	// Create the project directory
+	err := os.Mkdir(project, 0777)
+	if err != nil {
+		t.Fatalf("Could not create project directory, got %v", err)
+	}
 	isCreated := Giiit_init(project)
 	if !isCreated {
 		t.Fatalf("Expected no error, got %v", isCreated)
@@ -30,10 +36,11 @@ func TestGiiit(t *testing.T) {
 	if _, err := os.Stat(project + "/.giiit/snapshots"); os.IsNotExist(err) {
 		t.Fatalf("Expected project/.giiit/snapshots to exist, got %v", err)
 	}
-	// Remove ./project/.giiit
-	err := os.RemoveAll(project + "/.giiit")
+
+	// Remove the project directory
+	err = os.RemoveAll(project)
 	if err != nil {
-		t.Fatalf("Could not remove project/.giiit, got %v", err)
+		t.Fatalf("Could not remove project directory, got %v", err)
 	}
 
 }

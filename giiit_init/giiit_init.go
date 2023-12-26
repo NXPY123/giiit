@@ -32,6 +32,16 @@ func Giiit_init(project string) bool {
 
 	}
 
+	// Create refs/heads directory
+	err = os.Mkdir(project+"/.giiit/refs/heads", 0777)
+	if err != nil {
+		fmt.Println("Error creating refs/heads directory")
+		fmt.Println(err)
+		err = os.Remove(project + "/.giiit")
+		return false
+
+	}
+
 	// Create refs/tags directory
 	err = os.Mkdir(project+"/.giiit/refs/tags", 0777)
 	if err != nil {

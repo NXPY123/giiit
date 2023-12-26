@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/NXPY123/giiit/commit"
 	"github.com/NXPY123/giiit/giiit_init"
 )
 
@@ -21,6 +22,13 @@ func main() {
 	switch os.Args[0] {
 	case "init":
 		success := giiit_init.Giiit_init(os.Args[1])
+		if success {
+			os.Exit(0)
+		} else {
+			os.Exit(1)
+		}
+	case "commit":
+		success := commit.Commit(os.Args[1], os.Args[2])
 		if success {
 			os.Exit(0)
 		} else {
