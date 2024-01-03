@@ -7,6 +7,7 @@ import (
 	"github.com/NXPY123/giiit/commit"
 	"github.com/NXPY123/giiit/giiit_init"
 	"github.com/NXPY123/giiit/log"
+	"github.com/NXPY123/giiit/tag"
 )
 
 func main() {
@@ -23,27 +24,28 @@ func main() {
 	switch os.Args[0] {
 	case "init":
 		success := giiit_init.Giiit_init(os.Args[1])
-		if success {
-			os.Exit(0)
-		} else {
-			os.Exit(1)
-		}
+		os.Exit(bool2int(!success))
 	case "commit":
 		success := commit.Commit(os.Args[1], os.Args[2])
-		if success {
-			os.Exit(0)
-		} else {
-			os.Exit(1)
-		}
+		os.Exit(bool2int(!success))
 	case "log":
-		success := log.LogView()
-		if success {
-			os.Exit(0)
-		} else {
-			os.Exit(1)
-		}
+		success := log.LogView(os.Args[1])
+		os.Exit(bool2int(!success))
+	case "tag":
+		project := os.Args[1]
+		tag_name := os.Args[2]
+		commit := os.Args[3]
+		success := tag.Tag(project, tag_name, commit)
+		os.Exit(bool2int(!success))
 	default:
 		fmt.Println("giiit: '" + os.Args[0] + "' is not a giiit command. See 'giiit --help'")
 
 	}
+}
+
+func bool2int(b bool) int {
+	if b {
+		return 1
+	}
+	return 0
 }

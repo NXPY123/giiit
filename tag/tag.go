@@ -57,5 +57,6 @@ func Tag(project string, tag string, commit string) bool {
 		return false
 	}
 
+	fmt.Println("Tagged commit", commit, "as", tag)
 	return true
 }

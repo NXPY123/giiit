@@ -5,10 +5,10 @@ import (
 	"os"
 )
 
-func LogView() bool {
+func LogView(project string) bool {
 	// For all the snapshots, print the contents of the commit message file
 	// Check if project/.giiit/snapshots exists
-	if _, err := os.Stat(".giiit/snapshots"); os.IsNotExist(err) {
+	if _, err := os.Stat(project + ".giiit/snapshots"); os.IsNotExist(err) {
 		fmt.Println("fatal: no ref to commit on: snapshots")
 		return false
 	}
@@ -16,7 +16,7 @@ func LogView() bool {
 	nextSnapshotNumber := 0
 	// While the next snapshot number exists, increment it
 	for {
-		if _, err := os.Stat(".giiit/snapshots/" + fmt.Sprint(nextSnapshotNumber)); os.IsNotExist(err) {
+		if _, err := os.Stat(project + ".giiit/snapshots/" + fmt.Sprint(nextSnapshotNumber)); os.IsNotExist(err) {
 			break
 		}
 
