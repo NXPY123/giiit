@@ -34,14 +34,38 @@ func TestCommit(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Could not close file, got %v", err)
 	}
+	// Create a .giiitignore file
+	file, err = os.Create(project + "/.giiitignore")
+	if err != nil {
+		t.Fatalf("Could not create .giiitignore file, got %v", err)
+	}
+	// Write to the file
+	_, err = file.WriteString(project + ".test2.txt")
+	if err != nil {
+		t.Fatalf("Could not write to .giiitignore file, got %v", err)
+	}
+	// Close the file
+	err = file.Close()
+	if err != nil {
+		t.Fatalf("Could not close .giiitignore file, got %v", err)
+	}
+	// Create a file in the project directory
+	file, err = os.Create(project + "/test2.txt")
+	if err != nil {
+		t.Fatalf("Could not create file, got %v", err)
+	}
 	// Commit the file
 	isCommitted := Commit(project, "test commit")
 	if !isCommitted {
 		t.Fatalf("Expected no error, got %v", isCommitted)
 	}
-	// Check if project/.giiit/snapshots/1/test.txt exists
+	// Check if project/.giiit/snapshots/0/test.txt exists
 	if _, err := os.Stat(project + "/.giiit/snapshots/0/test.txt"); os.IsNotExist(err) {
 		t.Fatalf("Expected project/.giiit/snapshots/0/test.txt to exist, got %v", err)
+	}
+	// Ensure test2.txt is not committed
+	if _, err := os.Stat(project + "/.giiit/snapshots/0/test2.txt"); !os.IsNotExist(err) {
+		t.Fatalf("Expected project/.giiit/snapshots/0/test2.txt to not exist, got %v", err)
 	}
 	// Remove ./project
 	err = os.RemoveAll(project)

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"regexp"
 	"time"
 )
 
@@ -68,9 +69,47 @@ func Commit(project string, message string) bool {
 		return false
 	}
 
+	fileregex := regexp.MustCompile("^$")
+	// Check if there is a .giiitignore file
+	if _, err := os.Stat(project + "/.giiitignore"); err == nil {
+		// Read the .giiitignore file
+		giiitignoreFile, err := os.ReadFile(project + "/.giiitignore")
+		if err != nil {
+			fmt.Println("Error reading .giiitignore file")
+			fmt.Println(err)
+			return false
+		}
+		// Split the .giiitignore file into lines
+		giiitignoreLines := regexp.MustCompile("\r\n|\n\r|\n|\r").Split(string(giiitignoreFile), -1)
+		// For each line in the .giiitignore file
+		regexpstring := ""
+		for _, giiitignoreLine := range giiitignoreLines {
+			// If the line is not empty
+			if giiitignoreLine != "" {
+				// Add the line to the regexpstring
+				regexpstring += giiitignoreLine + "|"
+			}
+		}
+		// Remove the last | from the regexpstring
+		regexpstring = regexpstring[:len(regexpstring)-1]
+		// Compile the regexpstring
+		fileregex, err = regexp.Compile(regexpstring)
+		if err != nil {
+			fmt.Println("Error compiling regexpstring")
+			fmt.Println(err)
+			return false
+		}
+	}
+
 	// Copy all the files to the next snapshot number directory except .giiit
 	for _, file := range files {
 		if file.Name() != ".giiit" {
+			// Check if the file is in the .giiitignore file
+			filePath := project + "/" + file.Name()
+			if fileregex.MatchString(filePath) {
+				// If the file is in the .giiitignore file, do not copy it
+				continue
+			}
 			_, err := Copy(project+"/"+file.Name(), project+"/.giiit/snapshots/"+fmt.Sprint(nextSnapshotNumber)+"/"+file.Name())
 			if err != nil {
 				fmt.Println("Error copying file")
@@ -106,7 +145,7 @@ func Commit(project string, message string) bool {
 
 }
 
-func Copy(src, dst string) (int64, error) {
+func Copy(src string, dst string) (int64, error) {
 	src_file, err := os.Open(src)
 	if err != nil {
 		return 0, err
