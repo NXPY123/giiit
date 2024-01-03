@@ -10,6 +10,7 @@ import (
 func TestCommit(t *testing.T) {
 	// Test with one argument
 	project := "../test"
+	commit_hash := "rDKHukRcXVc0Vb5WQM+bhaIut7E="
 	// Create the project directory
 	err := os.Mkdir(project, 0777)
 	if err != nil {
@@ -60,12 +61,12 @@ func TestCommit(t *testing.T) {
 		t.Fatalf("Expected no error, got %v", isCommitted)
 	}
 	// Check if project/.giiit/snapshots/0/test.txt exists
-	if _, err := os.Stat(project + "/.giiit/snapshots/0/test.txt"); os.IsNotExist(err) {
-		t.Fatalf("Expected project/.giiit/snapshots/0/test.txt to exist, got %v", err)
+	if _, err := os.Stat(project + "/.giiit/snapshots/" + commit_hash + "/test.txt"); os.IsNotExist(err) {
+		t.Fatalf("Expected project/.giiit/snapshots/"+commit_hash+"/test.txt to exist, got %v", err)
 	}
 	// Ensure test2.txt is not committed
-	if _, err := os.Stat(project + "/.giiit/snapshots/0/test2.txt"); !os.IsNotExist(err) {
-		t.Fatalf("Expected project/.giiit/snapshots/0/test2.txt to not exist, got %v", err)
+	if _, err := os.Stat(project + "/.giiit/snapshots/" + commit_hash + "/test2.txt"); !os.IsNotExist(err) {
+		t.Fatalf("Expected project/.giiit/snapshots/"+commit_hash+"/test2.txt to not exist, got %v", err)
 	}
 	// Remove ./project
 	err = os.RemoveAll(project)

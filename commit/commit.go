@@ -1,6 +1,8 @@
 package commit
 
 import (
+	"crypto/sha1"
+	"encoding/base64"
 	"fmt"
 	"io"
 	"os"
@@ -40,35 +42,6 @@ func Commit(project string, message string) bool {
 		return false
 	}
 
-	// Create a sub directory in snapshots with the directory name as the next snapshot number
-	// Get the next snapshot number
-	nextSnapshotNumber := 0
-	// While the next snapshot number exists, increment it
-	for {
-		if _, err := os.Stat(project + "/.giiit/snapshots/" + fmt.Sprint(nextSnapshotNumber)); os.IsNotExist(err) {
-			break
-		}
-		nextSnapshotNumber++
-	}
-	// Create the next snapshot number directory
-	err := os.Mkdir(project+"/.giiit/snapshots/"+fmt.Sprint(nextSnapshotNumber), 0777)
-	if err != nil {
-		fmt.Println("Error creating next snapshot number directory")
-		fmt.Println(err)
-		return false
-	}
-
-	// Copy all the files to the next snapshot number directory except .giiit
-	// Get all the files in the project directory
-	files, err := os.ReadDir(project)
-	if err != nil {
-		fmt.Println("Error reading project directory")
-		fmt.Println(err)
-		// Remove the next snapshot number directory
-		err = os.RemoveAll(project + "/.giiit/snapshots/" + fmt.Sprint(nextSnapshotNumber))
-		return false
-	}
-
 	fileregex := regexp.MustCompile("^$")
 	// Check if there is a .giiitignore file
 	if _, err := os.Stat(project + "/.giiitignore"); err == nil {
@@ -99,6 +72,65 @@ func Commit(project string, message string) bool {
 			fmt.Println(err)
 			return false
 		}
+	}
+
+	// Copy all the files to the next snapshot number directory except .giiit
+	// Get all the files in the project directory
+	files, err := os.ReadDir(project)
+	if err != nil {
+		fmt.Println("Error reading project directory")
+		fmt.Println(err)
+		// Remove the next snapshot number directory
+		return false
+	}
+
+	// Generate sha hash of the content of all the files in the project directory
+	// Create sha1 hash
+	h := sha1.New()
+	// For each file in the project directory
+	for _, file := range files {
+		if file.Name() != ".giiit" {
+			// Check if the file is in the .giiitignore file
+			filePath := project + "/" + file.Name()
+			if fileregex.MatchString(filePath) {
+				// If the file is in the .giiitignore file, do not include it
+				continue
+			}
+			// Add the contents of the file to fileContent
+			fileToHash, err := os.Open(project + "/" + file.Name())
+			if err != nil {
+				fmt.Println("Error opening file")
+				fmt.Println(err)
+				// Remove the next snapshot number directory
+				return false
+			}
+			// Copy the contents of the file to fileContent
+			_, err = io.Copy(h, fileToHash)
+			if err != nil {
+				fmt.Println("Error copying file")
+				fmt.Println(err)
+				// Remove the next snapshot number directory
+				return false
+			}
+			// Close the file
+			err = fileToHash.Close()
+			if err != nil {
+				fmt.Println("Error closing file")
+				fmt.Println(err)
+				// Remove the next snapshot number directory
+				return false
+			}
+		}
+	}
+	// Get the sha1 hash
+	nextSnapshotNumber := base64.StdEncoding.EncodeToString(h.Sum(nil))
+
+	// Create the next snapshot number directory
+	err = os.Mkdir(project+"/.giiit/snapshots/"+nextSnapshotNumber, 0777)
+	if err != nil {
+		fmt.Println("Error creating next snapshot number directory")
+		fmt.Println(err)
+		return false
 	}
 
 	// Copy all the files to the next snapshot number directory except .giiit
@@ -140,6 +172,9 @@ func Commit(project string, message string) bool {
 	commitMessageFile.WriteString("\n")
 	commitMessageFile.WriteString(message)
 	commitMessageFile.Close()
+
+	fmt.Println("Committed as", nextSnapshotNumber)
+	fmt.Println("Run 'giiit log' to see the commit history")
 
 	return true
 
