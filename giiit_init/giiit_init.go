@@ -61,6 +61,14 @@ func Giiit_init(project string) bool {
 	}
 
 	//Create branches file
+	//Make branches directory
+	err = os.Mkdir(project+"/.giiit/branches", 0777)
+	if err != nil {
+		fmt.Println("Error creating branches directory")
+		fmt.Println(err)
+		os.RemoveAll(project + "/.giiit")
+		return false
+	}
 	branchesFile, err := os.Create(project + "/.giiit/branches/branches.txt")
 	if err != nil {
 		fmt.Println("Error creating branches file")

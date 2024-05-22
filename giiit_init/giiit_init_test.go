@@ -37,9 +37,23 @@ func TestGiiit(t *testing.T) {
 		t.Fatalf("Expected project/.giiit/snapshots to exist, got %v", err)
 	}
 
-	//Check if project/.giiit/refs/branches.txt exists
-	if _, err := os.Stat(project + "/.giiit/branches.txt"); os.IsNotExist(err) {
-		t.Fatalf("Expected project/.giiit/branches.txt to exist, got %v", err)
+	//Check if project/.giiit/branches/branches.txt exists
+	if _, err := os.Stat(project + "/.giiit/branches/branches.txt"); os.IsNotExist(err) {
+		t.Fatalf("Expected project/.giiit/branches/branches.txt to exist, got %v", err)
+	}
+
+	// Check if project/.giiit/branches/current_branch.txt exists
+	if _, err := os.Stat(project + "/.giiit/branches/current_branch.txt"); os.IsNotExist(err) {
+		t.Fatalf("Expected project/.giiit/branches/current_branch.txt to exist, got %v", err)
+	}
+
+	// Make sure the content of project/.giiit/branches/current_branch.txt is main
+	currBranch, err := os.ReadFile(project + "/.giiit/branches/current_branch.txt")
+	if err != nil {
+		t.Fatalf("Could not read current branch file, got %v", err)
+	}
+	if string(currBranch) != "main" {
+		t.Fatalf("Expected current branch to be main, got %v", string(currBranch))
 	}
 
 	// Remove the project directory
