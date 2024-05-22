@@ -16,3 +16,5 @@ replace github.com/NXPY123/giiit/commit => ../commit
 replace github.com/NXPY123/giiit/log => ../log
 
 replace github.com/NXPY123/giiit/tag => ../tag
+
+replace github.com/NXPY123/giiit/branch => ../branch

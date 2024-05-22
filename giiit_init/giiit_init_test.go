@@ -37,6 +37,11 @@ func TestGiiit(t *testing.T) {
 		t.Fatalf("Expected project/.giiit/snapshots to exist, got %v", err)
 	}
 
+	//Check if project/.giiit/refs/branches.txt exists
+	if _, err := os.Stat(project + "/.giiit/branches.txt"); os.IsNotExist(err) {
+		t.Fatalf("Expected project/.giiit/branches.txt to exist, got %v", err)
+	}
+
 	// Remove the project directory
 	err = os.RemoveAll(project)
 	if err != nil {

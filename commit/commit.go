@@ -163,6 +163,57 @@ func Commit(project string, message string) bool {
 		return false
 	}
 
+	// Get the current branch
+	currBranch, err := os.ReadFile(project + "/.giiit/branches/current_branch.txt")
+	if err != nil {
+		fmt.Println("Error reading current branch file")
+		fmt.Println(err)
+		// Remove the next snapshot number directory
+		err = os.RemoveAll(project + "/.giiit/snapshots/" + fmt.Sprint(nextSnapshotNumber))
+		return false
+	}
+
+	// Check if head file exists
+	if _, err := os.Stat(project + "/.giiit/refs/heads/" + string(currBranch) + ".txt"); os.IsNotExist(err) {
+		// Create the head file
+		headFile, err := os.Create(project + "/.giiit/refs/heads/" + string(currBranch) + ".txt")
+		if err != nil {
+			fmt.Println("Error creating head file")
+			fmt.Println(err)
+			// Remove the next snapshot number directory
+			err = os.RemoveAll(project + "/.giiit/snapshots/" + fmt.Sprint(nextSnapshotNumber))
+			return false
+		}
+		// Set head file to NIL
+		headFile.WriteString("NIL")
+		headFile.Close()
+	}
+
+	// Read the head file
+	head, err := os.ReadFile(project + "/.giiit/refs/heads/" + string(currBranch) + ".txt")
+	if err != nil {
+		fmt.Println("Error reading head file")
+		fmt.Println(err)
+		// Remove the next snapshot number directory
+		err = os.RemoveAll(project + "/.giiit/snapshots/" + fmt.Sprint(nextSnapshotNumber))
+		return false
+	}
+
+	// Set prev in .commit file to head
+	commitMessageFile.WriteString("prev: " + string(head) + "\n")
+
+	// Set head of branch to next snapshot number
+	headFile, err := os.Create(project + "/.giiit/refs/heads/" + string(currBranch) + ".txt")
+	if err != nil {
+		fmt.Println("Error creating head file")
+		fmt.Println(err)
+		// Remove the next snapshot number directory
+		err = os.RemoveAll(project + "/.giiit/snapshots/" + fmt.Sprint(nextSnapshotNumber))
+		return false
+	}
+	headFile.WriteString(nextSnapshotNumber)
+	headFile.Close()
+
 	// Write the commit message to the commit message file
 	// Get the current time
 	currentTime := time.Now()
