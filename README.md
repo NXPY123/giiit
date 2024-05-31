@@ -44,6 +44,14 @@ giiit tag [project directory] [tag name] [commit hash]
 
 This example creates an annotated tag with the name "v1.0" and an associated message.
 
+### 5. Creating Branches
+
+To create a new branch, use the following command:
+
+```bash
+giiit branch [project directory] [branch name]
+```
+
 ## Getting Started
 
 1. Clone the Giiit repository:
